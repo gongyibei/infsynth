@@ -1,20 +1,13 @@
 import types
-
-import numpy as np
-
 from . import op
 
 
 class Analog(object):
-
-    def __init__(self):
-        pass
-
     def __call__(self, t):
         return self.oscillate(t)
 
     def oscillate(self, t):
-        return 0
+        pass
 
     # Mix two signal
     def __add__(self, X):
@@ -31,9 +24,6 @@ class Analog(object):
     # Delay signal
     def __rshift__(self, dt):
         return op.rshift(self, dt)
-
-    def __call__(self, t):
-        return self.oscillate(t)
 
     # Mix two signal
     def add(self, X):
@@ -55,20 +45,11 @@ class Analog(object):
         return op.conv(self, X)
 
 
-# Direct Current
-class DC(Analog):
-
-    def __init__(self, v):
-        Analog.__init__(self)
-        self.v = v
-
-    def oscillate(self, t):
-        return np.repeat(self.v, len(t))
-
-
-# Alternating Current
-class AC(Analog):
-
-    def __init__(self, freq):
-        Analog.__init__(self)
-        self.T = 1 / freq
+# analog warpper
+def analog_warpper(opt):
+    def wrapper(*args, **kwargs):
+        O = Analog()
+        oscillate = lambda self, t: opt(*args, **kwargs)(t)
+        O.oscillate = types.MethodType(oscillate, O)
+        return O
+    return wrapper

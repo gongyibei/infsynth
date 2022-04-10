@@ -1,61 +1,52 @@
-import types
-
 import numpy as np
 import scipy.signal
-
-from . import analog
-
-
-# opperator warpper
-def OP(opt):
-    def wrapper(*args, **kwargs):
-        O = analog.Analog()
-        def oscillate(self, t): return opt(*args, **kwargs)(t)
-        O.oscillate = types.MethodType(oscillate, O)
-        return O
-    return wrapper
+from .analog import analog_warpper
 
 
-@OP
+@analog_warpper
 def add(A, B):
-    return lambda t: A(t) + B(t)
+    if type(B) == int or type(B) == float:
+        return lambda t: A(t) + B
+    else:
+        return lambda t: A(t) + B(t)
 
 
-@OP
+@analog_warpper
 def sub(A, B):
-    return lambda t: A(t) - B(t)
+    if type(B) == int or type(B) == float:
+        return lambda t: A(t) - B
+    else:
+        return lambda t: A(t) - B(t)
 
 
-@OP
+@analog_warpper
 def mul(A, B):
-    return lambda t: A(t) * B(t)
+    if type(B) == int or type(B) == float:
+        return lambda t: A(t) * B
+    else:
+        return lambda t: A(t) * B(t)
 
 
-@OP
+@analog_warpper
 def lshift(A, dt):
     return lambda t: A(t + dt)
 
 
-@OP
+@analog_warpper
 def rshift(A, dt):
     return lambda t: A(t - dt)
 
 
 # I don't know when I'll need it either...
-@OP
+@analog_warpper
 def conv(A, B):
     return lambda t: scipy.signal.convolve(A(t), B(t), mode='same')
 
-# @OP
-# def norm(A):
-#     return
 
-
-@OP
+@analog_warpper
 def concat(analog_list, duration_list):
     def f(t):
         t = t % sum(duration_list)
-
         condlist = []
         funclist = []
         last = cur = 0
@@ -70,5 +61,8 @@ def concat(analog_list, duration_list):
             condlist,
             funclist
         )
-
     return f
+
+# @analog_warpper
+# def norm(A):
+#     return

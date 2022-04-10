@@ -1,35 +1,28 @@
+from ctypes import Union
+from re import U
 import numpy as np
 import scipy.signal
 
-from .analog import AC, DC
+from .analog import analog_warpper
 
 
-class Sin(AC):
+@analog_warpper
+def sin(freq, amp = 1, phase = 0):
+    return lambda t: np.sin(2 * np.pi * freq * t + phase) * amp
 
-    def __init__(self, freq):
-        AC.__init__(self, freq)
+@analog_warpper
+def squ(freq, duty = 0.5):
+    return lambda t: scipy.signal.square(2 * np.pi * freq * t, duty=duty)
 
-    def oscillate(self, t):
-        return np.sin(2 * np.pi * (1 / self.T) * t)
+@analog_warpper
+def saw(freq, width = 0.5):
+    return lambda t: scipy.signal.sawtooth(2 * np.pi * freq * t, width=width)
 
+@analog_warpper
+def dc(value):
+    return lambda t: value
+    
 
-class Square(AC):
-
-    def __init__(self, freq, duty=DC(0.5)):
-        AC.__init__(self, freq)
-        self.duty = duty
-
-    def oscillate(self, t):
-        return scipy.signal.square(2 * np.pi * (1 / self.T) * t,
-                                   duty=self.duty.v)
-
-
-class Saw(AC):
-
-    def __init__(self, freq, width=DC(0.5)):
-        AC.__init__(self, freq)
-        self.width = width
-
-    def oscillate(self, t):
-        return scipy.signal.sawtooth(2 * np.pi * (1 / self.T) * t,
-                                     width=self.width.v)
+@analog_warpper
+def sampler(arr, sr):
+    return lambda t: arr[int(t * sr)]

@@ -1,62 +1,43 @@
-import numpy as np
-
+from .analog import analog_warpper
+from .basic import sin, squ, saw, dc
 from . import op
-from .analog import AC, DC
 
 
-class Attack(AC):
-    def __init__(self, duration):
-        AC.__init__(self, 1/duration)
+# sin modulation
+@analog_warpper
+def sinm(freq): 
+    return (sin(freq) + 1.) * 0.5
 
-    def oscillate(self, t):
-        t = t%self.T
-        return 1/self.T * t
+# square modulation
+@analog_warpper
+def squm(freq): 
+    return (squ(freq) + 1.) * 0.5
 
+# sawtooth modulation
+@analog_warpper
+def sawm(freq): 
+    return (saw(freq) + 1.) * 0.5
 
-class Decay(AC):
-    def __init__(self, duration):
-        AC.__init__(self, 1/duration)
+@analog_warpper
+def attack(duration):
+    return lambda t: t
 
-    def oscillate(self, t):
-        t = t%self.T
-        return 1 - 1/self.T * t
+@analog_warpper
+def decay(duration):
+    return lambda t: 1 - t / duration
 
+@analog_warpper
+def sustain(value):
+    return lambda t: value
 
-Sustain = DC
-Release = Decay
+@analog_warpper
+def release(duration):
+    return lambda t: 1 - t / duration
 
-
-def ADSR(attack_time=0.01, decay_time=0.05, sustain_time=0.05, sustain_val=0.5, release_time=0.05):
-
-    att = Attack(attack_time)
-    dec = Decay(decay_time) * DC(1 - sustain_val) + DC(sustain_val)
-    sus = Sustain(sustain_val)
-    rel = Release(release_time) * DC(sustain_val)
+@analog_warpper
+def adsr(attack_time=0.01, decay_time=0.05, sustain_time=0.05, sustain_val=0.5, release_time=0.05):
+    att = attack(attack_time)
+    dec = decay(decay_time) * (1 - sustain_val) + sustain_val
+    sus = sustain(sustain_val)
+    rel = release(release_time) * sustain_val
     return op.concat([att, dec, sus, rel], [attack_time, decay_time, sustain_time, release_time])
-
-
-# class ADSR(AC):
-#     def __init__(self, freq, a, d, s, r):
-#         AC.__init__(self, freq)
-#         _sum = sum(a + d + s + r)
-#         self.a = (a / _sum) * self.T
-#         self.d = (d / _sum) * self.T
-#         self.s = (s / _sum) * self.T
-#         self.r = (r / _sum) * self.T
-
-#     def oscillate(self, t):
-#         t %= self.T
-#         np.piecewise(
-#             t,
-#             [t < self.a],
-#             [Attack(), Decay(), Sustain(), Release()]
-#         )
-
-
-# class AD(ADSR):
-#     def __init__(self, freq, a, d):
-#         ADSR.__init__(self, freq, a, d, 0, 0)
-
-
-class AR(AC):
-    pass
