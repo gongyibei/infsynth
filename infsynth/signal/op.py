@@ -1,6 +1,6 @@
 import numpy as np
 import scipy.signal
-from .analog import analog_warpper
+from .analog import Analog, analog_warpper
 
 
 @analog_warpper
@@ -15,7 +15,7 @@ def add(A, B):
 def sub(A, B):
     if type(B) == int or type(B) == float:
         return lambda t: A(t) - B
-    else:
+    elif type(B) == Analog:
         return lambda t: A(t) - B(t)
 
 
@@ -23,9 +23,15 @@ def sub(A, B):
 def mul(A, B):
     if type(B) == int or type(B) == float:
         return lambda t: A(t) * B
-    else:
+    elif type(B) == Analog:
         return lambda t: A(t) * B(t)
 
+@analog_warpper
+def div(A, B):
+    if type(B) == int or type(B) == float:
+        return lambda t: A(t) / B
+    elif type(B) == Analog:
+        return lambda t: A(t) / B(t)
 
 @analog_warpper
 def lshift(A, dt):
@@ -37,10 +43,9 @@ def rshift(A, dt):
     return lambda t: A(t - dt)
 
 
-# I don't know when I'll need it either...
 @analog_warpper
-def conv(A, B):
-    return lambda t: scipy.signal.convolve(A(t), B(t), mode='same')
+def conv(A, kernel):
+    return lambda t: scipy.signal.convolve(A(t), kernel, mode='same')
 
 
 @analog_warpper
@@ -63,6 +68,6 @@ def concat(analog_list, duration_list):
         )
     return f
 
-# @analog_warpper
-# def norm(A):
-#     return
+@analog_warpper
+def norm(A):
+    return lambda t: A(t) / (max(abs(A(t))) + 1e-9)

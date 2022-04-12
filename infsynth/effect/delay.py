@@ -1,6 +1,5 @@
-from numpy import sign
-from ..signal import signal_warpper
+from ..signal import analog_warpper
 
-@signal_warpper
-def delay(A, delay_time, decay=0.5):
+@analog_warpper
+def basic_delay(A, delay_time, decay=0.5):
     return lambda t: A(t) + A(t - delay_time) * decay
