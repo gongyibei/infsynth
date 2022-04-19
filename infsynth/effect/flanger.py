@@ -1,7 +1,7 @@
-from ..signal import analog_warpper, sinm
+from ..signal import Analog, sinm
 
 
-@analog_warpper
 def basic_flanger(A, freq=1, depth=0.01, delay=0.001, wet=0.5):
     mod = sinm(freq) * depth + delay
-    return lambda t: A(t) * (1 - wet) + A(t - mod(t)) * wet
+    f = lambda t: A(t) * (1 - wet) + A(t - mod(t)) * wet
+    return Analog(f)

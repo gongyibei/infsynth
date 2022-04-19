@@ -1,5 +1,5 @@
-from ..signal import analog_warpper
+from ..signal import Analog
 
-@analog_warpper
 def basic_delay(A, delay_time, decay=0.5):
-    return lambda t: A(t) + A(t - delay_time) * decay
+    f = lambda t: A(t) + A(t - delay_time) * decay
+    return Analog(f)
