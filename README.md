@@ -1,5 +1,5 @@
 # infsynth
-![Ui](https://github.com/gongyibei/infsynth/blob/master/logo.jpg)
+![Ui](https://github.com/gongyibei/infsynth/blob/master/logo.gif)
 
 infsynth
 ## tutorial
