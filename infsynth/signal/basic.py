@@ -5,62 +5,73 @@ import scipy.signal
 import scipy.integrate
 import scipy.io.wavfile as wav
 
-from .analog import analog_warpper, Analog
+from .analog import Analog
 
 
-@analog_warpper
-def sin(freq, phase = 0):
+def sin(freq, phase=0):
+
     def f(t):
         if type(freq) == int or type(freq) == float:
             phase_t = freq * t
         elif type(freq) == Analog:
-            phase_t = scipy.integrate.cumulative_trapezoid(freq(t), t, initial=0)
+            phase_t = scipy.integrate.cumulative_trapezoid(freq(t),
+                                                           t,
+                                                           initial=0)
         else:
             raise "Unsupported type of freq"
-        return np.sin(2 * np.pi * phase_t  + phase)
-    return f
+        return np.sin(2 * np.pi * phase_t + phase)
 
-@analog_warpper
-def squ(freq, duty = 0.5, phase = 0):
+    return Analog(f)
+
+
+def squ(freq, duty=0.5, phase=0):
+
     def f(t):
         if type(freq) == int or type(freq) == float:
             phase_t = freq * t
         elif type(freq) == Analog:
-            phase_t = scipy.integrate.cumulative_trapezoid(freq(t), t, initial=0)
+            phase_t = scipy.integrate.cumulative_trapezoid(freq(t),
+                                                           t,
+                                                           initial=0)
         else:
             raise "Unsupported type of freq"
-        return scipy.signal.square(2 * np.pi * phase_t  + phase, duty=duty)
-    return f
+        return scipy.signal.square(2 * np.pi * phase_t + phase, duty=duty)
+
+    return Analog(f)
 
 
-@analog_warpper
-def saw(freq, width = 0, phase = 0):
+def saw(freq, width=0, phase=0):
+
     def f(t):
         if type(freq) == int or type(freq) == float:
             phase_t = freq * t
         elif type(freq) == Analog:
-            phase_t = scipy.integrate.cumulative_trapezoid(freq(t), t, initial=0)
+            phase_t = scipy.integrate.cumulative_trapezoid(freq(t),
+                                                           t,
+                                                           initial=0)
         else:
             raise "Unsupported type of freq"
-        return scipy.signal.sawtooth(2 * np.pi * phase_t  + phase, width=width)
-    return f
+        return scipy.signal.sawtooth(2 * np.pi * phase_t + phase, width=width)
 
-@analog_warpper
+    return Analog(f)
+
+
+def freeze(freq, width=0, phase=0):
+    pass
+
+
 def dc(value):
-    return lambda t: value
-    
+    return Analog(lambda t: value)
 
-@analog_warpper
-def sampler(arr, fs, freq=None):
-    if freq:
-        T = 1/freq
-    else:
-        T = (len(arr)-1)/fs
-    np.pad(arr, (0, max(0, int(T*fs) - len(arr) + 1)))
-    return lambda t: scipy.interpolate.interp1d(np.arange(len(arr))/fs, arr)(t%T)
+
+def sampler(arr, fs):
+    T = (len(arr) - 1) / fs
+    y = arr
+    x = np.arange(len(arr)) / fs
+    f = lambda t: scipy.interpolate.interp1d(x, y)(t % T)
+    return Analog(f)
+
 
 def fromfile(file_name):
     fs, data = wav.read(file_name)
     return sampler(data, fs)
-    
-    

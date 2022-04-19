@@ -4,11 +4,11 @@ from . import op
 
 class Analog(object):
 
-    def __call__(self, t):
-        return self.oscillate(t)
+    def __init__(self, f):
+        self._call = f
 
-    def oscillate(self, t):
-        pass
+    def __call__(self, t):
+        return self._call(t)
 
     # Mix two signal
     def __add__(self, X):
@@ -50,13 +50,3 @@ class Analog(object):
 
     def conv(self, X):
         return op.conv(self, X)
-
-
-# analog warpper
-def analog_warpper(opt):
-    def wrapper(*args, **kwargs):
-        O = Analog()
-        oscillate = lambda self, t: opt(*args, **kwargs)(t)
-        O.oscillate = types.MethodType(oscillate, O)
-        return O
-    return wrapper
