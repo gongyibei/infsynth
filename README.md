@@ -1,7 +1,11 @@
-# infsynth
-![Ui](https://github.com/gongyibei/infsynth/blob/master/logo.gif)
+<div align="center">
 
-infsynth
+# infsynth
+
+<img width="200px" src="https://raw.githubusercontent.com/gongyibei/infsynth/master/logo.gif">
+
+</div>
+
 ## tutorial
 
 ```python
