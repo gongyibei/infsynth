@@ -1,10 +1,10 @@
 <div align="center">
 
-# infsynth
-
 <img width="200px" src="https://raw.githubusercontent.com/gongyibei/infsynth/master/logo.gif">
 
 </div>
+
+--- 
 
 ## tutorial
 
@@ -59,7 +59,7 @@ you can use any sampling rate to sample your signal as follow:
 sr = 44100 # sampling rate
 o = sin(440) # your signal
 duration = 5 # sampling duration 
-t = np.array(0, duration, 1/sr) # Sampling time point
+t = np.arange(0, duration, 1/sr) # Sampling time point
 arr = o(t) # sampling the signal  
 ```
 

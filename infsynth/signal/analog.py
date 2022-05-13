@@ -1,12 +1,13 @@
-import types
 from . import op
 
-
 class Analog(object):
+    sample_rate = 44100
 
-    def __init__(self, f):
+    def __init__(self, f, T=float('inf')):
         self._call = f
+        self.T = T
 
+    # sampling
     def __call__(self, t):
         return self._call(t)
 
@@ -31,6 +32,14 @@ class Analog(object):
     # Delay signal
     def __rshift__(self, dt):
         return op.rshift(self, dt)
+    
+    # Concat signal with signal B
+    def __or__(self, B):
+        return op.con([self, B])
+    
+    def __getitem__(self, slice):
+        pass
+
 
     # Mix two signal
     def add(self, X):
@@ -50,3 +59,10 @@ class Analog(object):
 
     def conv(self, X):
         return op.conv(self, X)
+    
+    def imp(self, seq='1', on='1', off='0'):
+        return op.imp(self, seq=seq, on=on, off=off)
+    
+    def freeze(self, minT=10e-6, maxT=1000, sr = 44100):
+        return op.freeze(self, minT=minT, maxT=maxT, sr = sr)
+

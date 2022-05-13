@@ -5,7 +5,7 @@ class Module(object):
 
     def __init__(self):
         self.sample_rate = 44100
-        self.buf_size = 2048
+        self.buf_size = 256
         self.dtype = np.float32
 
     def forward(self):
